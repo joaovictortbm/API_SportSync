@@ -19,7 +19,6 @@ MODEL_MAP = {
 
 @api_view(['GET'])
 def list_objects(request, model_name):
-    # Verifica se o modelo existe no mapeamento
     if model_name not in MODEL_MAP:
         return Response({'error': 'Modelo inválido'}, status=status.HTTP_400_BAD_REQUEST)
     model, serializer_class = MODEL_MAP[model_name]
@@ -27,9 +26,8 @@ def list_objects(request, model_name):
     serializer = serializer_class(objs, many=True)
     return Response(serializer.data)
 
+
 # Método para recuperar um objeto específico pelo ID
-
-
 @api_view(['GET'])
 def list_object_byID(request, model_name, pk):
     if model_name not in MODEL_MAP:
@@ -42,24 +40,22 @@ def list_object_byID(request, model_name, pk):
     serializer = serializer_class(obj)
     return Response(serializer.data)
 
+
 # Método para criar um objeto
-
-
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 def create_object(request, model_name):
     if model_name not in MODEL_MAP:
         return Response({'error': 'Modelo inválido'}, status=status.HTTP_400_BAD_REQUEST)
-    model, serializer_class = MODEL_MAP[model_name]
+    _, serializer_class = MODEL_MAP[model_name]
     serializer = serializer_class(data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 # Método para atualizar um objeto
-
-
-@api_view(['GET', 'PUT'])
+@api_view(['PUT'])
 def update_object(request, model_name, pk):
     if model_name not in MODEL_MAP:
         return Response({'error': 'Modelo inválido'}, status=status.HTTP_400_BAD_REQUEST)
@@ -68,6 +64,7 @@ def update_object(request, model_name, pk):
         obj = model.objects.get(pk=pk)
     except model.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
     serializer = serializer_class(obj, data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -76,11 +73,11 @@ def update_object(request, model_name, pk):
 
 
 # Método para deletar um objeto
-@api_view(['GET', 'DELETE'])
+@api_view(['DELETE'])
 def delete_object(request, model_name, pk):
     if model_name not in MODEL_MAP:
         return Response({'error': 'Modelo inválido'}, status=status.HTTP_400_BAD_REQUEST)
-    model, serializer_class = MODEL_MAP[model_name]
+    model, _ = MODEL_MAP[model_name]
     try:
         obj = model.objects.get(pk=pk)
     except model.DoesNotExist:
